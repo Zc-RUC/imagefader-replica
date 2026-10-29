@@ -1,0 +1,11 @@
+{
+  "name": "imagefader-local-replica",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local, browser-only image transparency editor",
+  "scripts": {
+    "dev": "python3 -m http.server 5173 --bind 127.0.0.1",
+    "start": "python3 -m http.server 5173 --bind 127.0.0.1",
+    "check": "node --check js/main.js && node --check js/ui-icons.js && node --check js/image-core.js && node --check js/editor-startup.js && node --check js/analytics.js && node --check js/locale.js"
+  }
+}

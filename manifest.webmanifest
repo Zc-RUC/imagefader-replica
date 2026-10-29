@@ -1,0 +1,25 @@
+{
+  "name": "ImageFader 图片透明度与渐隐工具",
+  "short_name": "ImageFader",
+  "description": "Online image opacity, gradient fade, edge feathering, and local transparency tool. 支持图片透明度、渐隐、羽化和局部透明。画像の透明度とグラデーションをブラウザ内で調整。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f7fa",
+  "theme_color": "#7057d9",
+  "icons": [
+    {
+      "src": "./images/logo-imagefader-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./images/logo-imagefader-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["photo", "graphics", "utilities"]
+}

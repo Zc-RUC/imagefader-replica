@@ -1,0 +1,270 @@
+<!doctype html>
+<!--
+设计假设：保留 ImageFader 单图编辑核心，服务需要快速制作透明素材的中文用户。
+设计推理：以透明胶片与 Alpha 蒙版为主题；冷白、墨黑与柔和紫色构成色板；Avenir Next / PingFang SC 建立清晰的无衬线层级；棋盘格淡出轨道作为签名元素。
+-->
+<html lang="zh-CN" class="no-js" data-auto-language="false">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#7057d9">
+    <meta name="color-scheme" content="light">
+    <title>ImageFader — 图片透明与渐变编辑器</title>
+    <meta name="description" content="在浏览器中制作整体透明、渐变透明、边缘羽化与局部透明，保留原始尺寸，无需上传图片。">
+    <link rel="icon" type="image/png" href="images/logo-imagefader-512.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="modulepreload" href="js/main.js">
+    <link rel="modulepreload" href="js/image-core.js">
+    <link rel="modulepreload" href="js/analytics.js">
+    <link rel="modulepreload" href="js/ui-icons.js">
+    <script defer src="js/editor-startup.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/editor.css">
+</head>
+<body data-default-mode="global">
+    <svg class="svg-sprite" aria-hidden="true">
+        <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V4m0 0L7.5 8.5M12 4l4.5 4.5M5 14v4.5A1.5 1.5 0 0 0 6.5 20h11a1.5 1.5 0 0 0 1.5-1.5V14"/></symbol>
+        <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-5-5 5 5-5 5"/></symbol>
+        <symbol id="i-global" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none" opacity=".24"/></symbol>
+        <symbol id="i-gradient" viewBox="0 0 24 24"><path d="M5 5h14v14H5z" opacity=".35"/><path d="M5 19 19 5M9 5h10v10"/></symbol>
+        <symbol id="i-feather" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="5" stroke-dasharray="3 2"/><rect x="8" y="8" width="8" height="8" rx="2" opacity=".45"/></symbol>
+        <symbol id="i-local" viewBox="0 0 24 24"><path d="m14.5 5.5 4 4L9 19H5v-4zM12.5 7.5l4 4M4 4h5M4 4v5"/></symbol>
+        <symbol id="i-check" viewBox="0 0 24 24"><path d="m6 12.5 4 4L18.5 8"/></symbol>
+        <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v5c0 4.5 2.8 8 7 10 4.2-2 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+        <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="4" width="17" height="16" rx="2.5"/><circle cx="9" cy="9" r="1.5"/><path d="m5 18 5-5 3 3 2.5-2.5L19 17"/></symbol>
+        <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+        <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5zM4 12l8 4.5 8-4.5M4 16l8 4.5 8-4.5"/></symbol>
+    </svg>
+
+    <a class="skip-link" href="#main-content">跳到主要内容</a>
+
+    <header class="site-header">
+        <div class="site-header__inner">
+            <a class="brand" href="./" aria-label="ImageFader 首页">
+                <span class="brand__mark" aria-hidden="true"><span></span></span>
+                <span class="brand__name">ImageFader</span>
+                <span class="brand__tag">LOCAL</span>
+            </a>
+            <nav class="site-nav" aria-label="主要导航">
+                <a href="#tool">编辑器</a>
+                <a href="#features">功能</a>
+                <a href="#guides">使用场景</a>
+                <a href="#faq">常见问题</a>
+            </nav>
+            <span class="header-note"><svg class="ui-icon" aria-hidden="true"><use href="#i-shield"/></svg>图片不离开设备</span>
+            <button class="button button--small button--ink" type="button" data-upload-trigger>
+                <svg class="ui-icon" aria-hidden="true"><use href="#i-upload"/></svg><span>上传图片</span>
+            </button>
+        </div>
+    </header>
+
+    <main id="main-content" data-screen-label="图片透明工作台">
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="page-shell hero__grid">
+                <div class="hero__copy">
+                    <p class="eyebrow"><span></span>BROWSER-NATIVE IMAGE STUDIO</p>
+                    <h1 id="hero-title">给图片一点<br><em>透明的余地。</em></h1>
+                    <p class="hero__lead">整体变淡、方向渐隐、边缘羽化或局部涂抹。无需打开大型设计软件，在浏览器里直接完成。</p>
+                    <div class="hero__actions">
+                        <button class="button button--primary button--large" type="button" data-upload-trigger>
+                            <span>选择一张图片</span><svg class="ui-icon" aria-hidden="true"><use href="#i-arrow"/></svg>
+                        </button>
+                        <a class="button button--ghost button--large" href="#mode-cards">查看四种效果</a>
+                    </div>
+                    <ul class="trust-list" aria-label="产品特点">
+                        <li><svg class="ui-icon" aria-hidden="true"><use href="#i-check"/></svg>PNG / JPG / WebP</li>
+                        <li><svg class="ui-icon" aria-hidden="true"><use href="#i-check"/></svg>保留原始尺寸</li>
+                        <li><svg class="ui-icon" aria-hidden="true"><use href="#i-check"/></svg>免费无水印</li>
+                    </ul>
+                    <div class="alpha-rail" aria-hidden="true">
+                        <span>ALPHA</span><div class="alpha-rail__track"><i></i></div><strong>0—100%</strong>
+                    </div>
+                </div>
+
+                <div class="hero-art" aria-label="图片渐变透明效果示意">
+                    <div class="hero-art__window">
+                        <div class="hero-art__top">
+                            <strong><svg class="ui-icon" aria-hidden="true"><use href="#i-image"/></svg>layer-preview.png</strong>
+                            <small>ALPHA CHANNEL</small>
+                        </div>
+                        <div class="hero-art__stage">
+                            <div class="hero-art__checker"></div>
+                            <div class="hero-art__picture">
+                                <svg viewBox="0 0 560 340" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+                                    <rect width="560" height="340" fill="#b8c8f3"/>
+                                    <circle cx="420" cy="82" r="47" fill="#f5dfa0"/>
+                                    <path d="M-20 285 145 92l160 193z" fill="#7d84b3"/>
+                                    <path d="M130 340 330 118l250 222z" fill="#505d82"/>
+                                    <path d="M0 260c135-28 250-18 360 10s170 22 220 4v66H0z" fill="#334b47"/>
+                                </svg>
+                            </div>
+                            <div class="hero-art__line"></div>
+                            <span class="hero-art__handle hero-art__handle--start"></span>
+                            <span class="hero-art__handle hero-art__handle--end"></span>
+                            <span class="hero-art__coordinate">A → B</span>
+                        </div>
+                        <div class="hero-art__controls">
+                            <span>渐变透明</span><div class="hero-art__slider"><i></i></div><strong>48%</strong>
+                        </div>
+                    </div>
+                    <div class="floating-note floating-note--privacy">
+                        <svg class="ui-icon" aria-hidden="true"><use href="#i-shield"/></svg>
+                        <div><strong>仅在本地处理</strong><small>不需要登录或上传</small></div>
+                    </div>
+                    <div class="floating-note floating-note--format"><strong>PNG</strong><small>TRUE ALPHA</small></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mode-strip" id="mode-cards" aria-label="四种透明处理模式">
+            <div class="page-shell mode-strip__grid">
+                <a class="mode-card mode-card--violet" href="?mode=global#tool" data-mode-link="global">
+                    <span class="mode-card__top"><svg class="ui-icon" aria-hidden="true"><use href="#i-global"/></svg><svg class="ui-icon mode-card__arrow" aria-hidden="true"><use href="#i-arrow"/></svg></span>
+                    <strong>整体透明</strong><small>让整张图片均匀变淡</small>
+                </a>
+                <a class="mode-card mode-card--peach" href="?mode=gradient#tool" data-mode-link="gradient">
+                    <span class="mode-card__top"><svg class="ui-icon" aria-hidden="true"><use href="#i-gradient"/></svg><svg class="ui-icon mode-card__arrow" aria-hidden="true"><use href="#i-arrow"/></svg></span>
+                    <strong>渐变透明</strong><small>线性、径向与扇形渐隐</small>
+                </a>
+                <a class="mode-card mode-card--mint" href="?mode=feather#tool" data-mode-link="feather">
+                    <span class="mode-card__top"><svg class="ui-icon" aria-hidden="true"><use href="#i-feather"/></svg><svg class="ui-icon mode-card__arrow" aria-hidden="true"><use href="#i-arrow"/></svg></span>
+                    <strong>边缘羽化</strong><small>柔和融入任何背景</small>
+                </a>
+                <a class="mode-card mode-card--blue" href="?mode=local#tool" data-mode-link="local">
+                    <span class="mode-card__top"><svg class="ui-icon" aria-hidden="true"><use href="#i-local"/></svg><svg class="ui-icon mode-card__arrow" aria-hidden="true"><use href="#i-arrow"/></svg></span>
+                    <strong>局部透明</strong><small>框选或涂抹指定区域</small>
+                </a>
+            </div>
+        </section>
+
+        <section class="tool-section" id="tool" aria-labelledby="tool-title">
+            <div class="page-shell">
+                <div class="section-heading section-heading--tool">
+                    <div><p class="eyebrow"><span></span>WORKSPACE</p><h2 id="tool-title">效果，直接调节。</h2></div>
+                    <p>所有预览都是真实 Alpha 通道。调整即时可见，导出时不会带入控制点与辅助线。</p>
+                </div>
+                <div id="editorApp" class="editor-mount" data-default-mode="global">
+                    <input class="visually-hidden" type="file" id="imageInput" accept="image/png,image/jpeg,image/webp" hidden>
+                    <div class="editor-shell" data-editor-startup>
+                        <div class="editor-topbar"><div class="editor-title"><span aria-hidden="true"></span>ImageFader 编辑器</div></div>
+                        <div class="editor-empty">
+                            <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="上传图片">
+                                <div>
+                                    <div class="drop-zone__icon" aria-hidden="true"><svg class="ui-icon" aria-hidden="true"><use href="#i-plus"/></svg></div>
+                                    <h3>把图片放到这里</h3>
+                                    <p data-startup-status role="status" aria-live="polite" data-loading="编辑器正在准备，可以先选择图片" data-queued="图片已留在浏览器，准备好后将自动打开" data-slow="加载较慢，已选图片仍保留在当前页面" data-failed="编辑器未能加载，请重新加载并选择图片">编辑器正在准备，可以先选择图片</p>
+                                    <label class="button button--primary editor-startup-choice" for="imageInput">选择图片</label>
+                                    <div class="drop-zone__meta" aria-label="支持格式"><span>PNG</span><span>JPG</span><span>WebP</span><span>最大 60MP</span></div>
+                                </div>
+                            </div>
+                            <a class="editor-startup-retry" data-startup-retry href="" hidden>重新加载页面</a>
+                            <noscript><p class="editor-startup-nojs">请启用 JavaScript 后重新加载。</p></noscript>
+                        </div>
+                    </div>
+                </div>
+                <noscript><p class="noscript-message">此工具需要 JavaScript 才能在浏览器本地处理图片。</p></noscript>
+            </div>
+        </section>
+
+        <section class="feature-section" id="features" aria-labelledby="features-title">
+            <div class="page-shell">
+                <div class="section-heading">
+                    <div><p class="eyebrow"><span></span>MADE FOR TRANSPARENCY</p><h2 id="features-title">只做透明，<br>但把细节做好。</h2></div>
+                    <p>没有复杂图层和冗余菜单。每种控件都对应一个清晰结果，让你专注于图片最终呈现的样子。</p>
+                </div>
+                <div class="feature-grid">
+                    <article class="feature-card">
+                        <span class="feature-card__icon"><svg class="ui-icon" aria-hidden="true"><use href="#i-gradient"/></svg></span>
+                        <span class="feature-card__label">自由渐变</span>
+                        <h3>从固定方向，到任意角度</h3>
+                        <p>线性、径向、扇形、范围反转与画布控制点，让图片从任何方向自然消失。</p>
+                        <a href="https://imagefader.com/image-gradient-transparency/">了解渐变透明<svg class="ui-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                    </article>
+                    <article class="feature-card">
+                        <span class="feature-card__icon"><svg class="ui-icon" aria-hidden="true"><use href="#i-layers"/></svg></span>
+                        <span class="feature-card__label">真实 Alpha</span>
+                        <h3>透明，不是叠一层白色</h3>
+                        <p>PNG 与 WebP 保留真正的半透明通道，放到深色、浅色或复杂背景上都自然。</p>
+                        <div class="feature-alpha" aria-hidden="true"><span></span><span></span><span></span></div>
+                    </article>
+                    <article class="feature-card">
+                        <span class="feature-card__icon"><svg class="ui-icon" aria-hidden="true"><use href="#i-shield"/></svg></span>
+                        <span class="feature-card__label">隐私优先</span>
+                        <h3>图片只在浏览器里</h3>
+                        <p>不用注册、不经服务器、不留水印。读取、预览和导出全部在当前设备完成。</p>
+                        <span class="feature-local">LOCAL ONLY</span>
+                    </article>
+                    <article class="feature-card">
+                        <span class="feature-card__icon"><svg class="ui-icon" aria-hidden="true"><use href="#i-local"/></svg></span>
+                        <span class="feature-card__label">细节控制</span>
+                        <h3>局部选区，也能柔和过渡</h3>
+                        <p>矩形、椭圆与画笔三种选区，支持增加、还原、反选和羽化边缘。</p>
+                        <a href="https://imagefader.com/partial-image-opacity/">了解局部透明<svg class="ui-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="use-cases" id="guides" aria-labelledby="cases-title">
+            <div class="page-shell">
+                <div class="section-heading section-heading--compact">
+                    <div><p class="eyebrow"><span></span>WHERE TO USE</p><h2 id="cases-title">下一张图，用在哪里？</h2></div>
+                </div>
+                <div class="case-list">
+                    <a href="https://imagefader.com/ppt-image-transparency/"><span class="case-list__index">A</span><div><strong>PPT 与 WPS 背景</strong><small>让底图不抢文字，做出自然留白</small></div><svg class="ui-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                    <a href="https://imagefader.com/fade-image-edges/"><span class="case-list__index">B</span><div><strong>海报与公众号配图</strong><small>让照片边缘融入版面和背景色</small></div><svg class="ui-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                    <a href="https://imagefader.com/make-image-semitransparent/"><span class="case-list__index">C</span><div><strong>水印、Logo 与叠图</strong><small>统一调淡素材，避免遮挡主体</small></div><svg class="ui-icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+                </div>
+            </div>
+        </section>
+
+        <section class="steps-section" aria-labelledby="steps-title">
+            <div class="page-shell">
+                <div class="section-heading section-heading--compact">
+                    <div><p class="eyebrow"><span></span>HOW IT WORKS</p><h2 id="steps-title">三步，得到透明图片。</h2></div>
+                </div>
+                <ol class="steps-list">
+                    <li><span>01</span><strong>上传图片</strong><p>选择、拖入或直接粘贴截图。</p></li>
+                    <li><span>02</span><strong>调节效果</strong><p>切换模式，用预设或滑杆微调。</p></li>
+                    <li><span>03</span><strong>透明导出</strong><p>选择 PNG 或 WebP，保留原始像素。</p></li>
+                </ol>
+            </div>
+        </section>
+
+        <section class="faq-section" id="faq" aria-labelledby="faq-title">
+            <div class="page-shell faq-layout">
+                <div><p class="eyebrow"><span></span>FAQ</p><h2 id="faq-title">关于透明，<br>你可能还想知道。</h2><p class="faq-layout__note">图片始终在你的设备上处理。</p></div>
+                <div class="faq-list">
+                    <details><summary>ImageFader 会上传我的图片吗？<svg class="ui-icon" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>不会。图片读取、处理和导出全部发生在当前浏览器中，没有上传接口，也不要求登录。</p></details>
+                    <details><summary>PNG、JPG、WebP 应该怎么选？<svg class="ui-icon" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>输入三种格式都可以。导出透明结果时请选择 PNG 或 WebP，因为 JPG 不支持透明通道。</p></details>
+                    <details><summary>处理后会降低原图尺寸吗？<svg class="ui-icon" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>不会。编辑器只缩放屏幕预览，导出仍使用原图像素尺寸。WebP 可另外调节压缩质量。</p></details>
+                    <details><summary>手机上可以做局部透明吗？<svg class="ui-icon" aria-hidden="true"><use href="#i-plus"/></svg></summary><p>可以。画布支持触摸拖动与画笔操作，移动端会固定显示导出按钮。</p></details>
+                </div>
+            </div>
+        </section>
+
+        <section class="final-cta">
+            <div class="page-shell final-cta__inner">
+                <div><p>READY WHEN YOU ARE</p><h2>让下一张图，恰到好处。</h2></div>
+                <button class="button button--primary button--large" type="button" data-upload-trigger>现在开始<svg class="ui-icon" aria-hidden="true"><use href="#i-arrow"/></svg></button>
+            </div>
+        </section>
+    </main>
+
+    <footer class="site-footer">
+        <div class="page-shell site-footer__grid">
+            <div class="site-footer__brand"><a class="brand brand--footer" href="./"><span class="brand__mark" aria-hidden="true"><span></span></span><span class="brand__name">ImageFader</span></a><p>专注图片透明、渐隐与羽化的本地工具。</p></div>
+            <div class="site-footer__links">
+                <div><strong>工具</strong><a href="?mode=global#tool">整体透明</a><a href="?mode=gradient#tool">渐变透明</a><a href="?mode=feather#tool">边缘羽化</a><a href="?mode=local#tool">局部透明</a></div>
+                <div><strong>了解更多</strong><a href="https://imagefader.com/batch-image-opacity/">批量处理</a><a href="https://imagefader.com/image-gradient-transparency/">渐变教程</a><a href="https://imagefader.com/">访问原站</a></div>
+                <div><strong>隐私</strong><a href="#privacy-note">本地处理说明</a><span>无账号</span><span>无水印</span></div>
+            </div>
+        </div>
+        <div class="page-shell site-footer__bottom" id="privacy-note"><p>© <span data-current-year>2026</span> ImageFader · 图片仅在本地浏览器处理</p><p>Designed for a softer edge.</p></div>
+    </footer>
+
+    <div class="toast-region" aria-live="polite" aria-atomic="true"></div>
+    <script>document.documentElement.classList.remove('no-js');</script>
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
